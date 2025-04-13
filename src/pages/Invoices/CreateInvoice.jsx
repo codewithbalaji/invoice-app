@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faEllipsisVertical, faChevronDown, faPlus, faGear, faCirclePlus, faTimes, faPencilAlt, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faEllipsisVertical, faChevronDown, faPlus, faGear, faCirclePlus, faBars } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation } from 'react-router-dom'; 
 
 const CreateInvoice = () => {
@@ -12,9 +12,9 @@ const CreateInvoice = () => {
     // New state for discount, adjustment, and tax
     const [discountType, setDiscountType] = useState('percentage'); // 'percentage' or 'amount'
     const [discountValue, setDiscountValue] = useState('');
-    const [discountAmount, setDiscountAmount] = useState(0);
+    const [discountAmount, setDiscountAmount] = useState(0); // Used in calculations
     const [adjustment, setAdjustment] = useState('');
-    const [adjustmentAmount, setAdjustmentAmount] = useState(0);
+    const [adjustmentAmount, setAdjustmentAmount] = useState(0); // Used in calculations
     const [taxType, setTaxType] = useState('TDS'); // 'TDS' or 'TCS'
     const [taxValue, setTaxValue] = useState('');
     const [taxAmount, setTaxAmount] = useState(0);
@@ -42,10 +42,6 @@ const CreateInvoice = () => {
         "Due end of the month",
         "Due end of the next month",
         "Custom"
-    ];
-
-    const salesPersons = [
-        "Select a sales Person"
     ];
 
     const taxOptions = [
@@ -105,16 +101,6 @@ const CreateInvoice = () => {
     const handleAddLineItem = () => {
         // Navigate to the LineItem component with current line items
         navigate('/dashboard/lineItem', { state: { lineItems } });
-    };
-
-    const handleRemoveItem = (id) => {
-        setLineItems(lineItems.filter(item => item.id !== id));
-    };
-
-    const handleQuantityChange = (id, quantity) => {
-        setLineItems(lineItems.map(item => 
-            item.id === id ? { ...item, quantity: parseFloat(quantity) || 0 } : item
-        ));
     };
 
     const handleDiscountTypeChange = (type) => {
@@ -200,15 +186,17 @@ const CreateInvoice = () => {
                 </div>
                 <div className='d-flex flex-column my-2 mb-3'>
                     <label className='label-clr-size required'>Invoice Date <span className="text-danger">*</span></label>
-                    <input
-                        type="date"
-                        className="font-size input-border border-top-0 border-start-0 border-end-0"
-                        id="invoiceDate"
-                        name="invoiceDate"
-                        value={invoiceData.invoiceDate}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="input-group">
+                        <input
+                            type="date"
+                            className="form-control font-size"
+                            id="invoiceDate"
+                            name="invoiceDate"
+                            value={invoiceData.invoiceDate}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
                 </div>
                 <div className="d-flex flex-column my-2 mb-3">
                     <label htmlFor="invoiceTerms" className="label-clr-size required">Terms <span className="text-danger">*</span></label>
@@ -231,40 +219,21 @@ const CreateInvoice = () => {
                 </div>
                 <div className='d-flex flex-column my-2 mb-3'>
                     <label className='label-clr-size required'>Due Date <span className="text-danger">*</span></label>
-                    <input
-                        type="date"
-                        className="font-size input-border border-top-0 border-start-0 border-end-0"
-                        id="dueDate"
-                        name="dueDate"
-                        value={invoiceData.dueDate}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="input-group">
+                        <input
+                            type="date"
+                            className="form-control font-size"
+                            id="dueDate"
+                            name="dueDate"
+                            value={invoiceData.dueDate}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
                 </div>
-
             </div>
 
             <div className='bg-white m-2 border rounded px-3 py-2'>
-                <div className="d-flex flex-column my-2 mb-3">
-                    <label htmlFor="salesPerson" className="label-clr-size required">Sales Person</label>
-                    <div className="input-with-icon position-relative">
-                        <input
-                            list="salesPersonsList"
-                            id="salesPerson"
-                            name="salesPerson"
-                            value={invoiceData.salesPerson}
-                            onChange={handleChange}
-                            className="font-size input-border border-top-0 border-start-0 border-end-0 w-100"
-                        />
-                        <FontAwesomeIcon icon={faChevronDown} className="icon-right font-size" />
-                    </div>
-                    <datalist id="salesPersonsList">
-                        {salesPersons.map((person, index) => (
-                            <option key={index} value={person} />
-                        ))}
-                    </datalist>
-                </div>
-
                 <div className='d-flex flex-column my-2 mb-3'>
                     <label className='label-clr-size required'>Subject</label>
                     <input
@@ -278,7 +247,6 @@ const CreateInvoice = () => {
                         placeholder='What is this Invoice for?'
                     />
                 </div>
-
             </div>
 
             <div className='bg-white m-2 border rounded px-3 py-4'>
@@ -301,7 +269,7 @@ const CreateInvoice = () => {
 
                 {lineItems.length > 0 ? (
                     <div className='mb-3'>
-                        {lineItems.map((item, index) => (
+                        {lineItems.map((item) => (
                             <div key={item.id} className='border-bottom py-2'>
                                 <div className='d-flex align-items-center'>
                                     <div className='me-2'>
